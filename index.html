@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>naknoob</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f3f3f3;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #4CAF50;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            min-height: 100px;
+            resize: vertical;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .user-info img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .user-details {
+            flex-grow: 1;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+    </style>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>สวัสดีครับผม</h2>
+
+        <form action="#" method="post">
+            <div class="input-group">
+                <label for="message">Message:</label>
+                <textarea id="message" name="message"></textarea>
+            </div>
+            <button type="button" onclick="clearInput('message')">Clear Input</button>
+            <button type="button" id="btnShare" onclick="shareMsg()">Share Target Picker</button>
+            <button type="button" id="btnLogOut" onclick="logOut()">Log Out</button>
+        </form>
+
+        <div class="user-info">
+            <img id="pictureUrl" src="" alt="User">
+            <div class="user-details">
+                <p id="userId"><b>UserID:</b> </p>
+                <p id="displayName"><b>DisplayName:</b> </p>
+                <p id="statusMessage"><b>StatusMessage:</b> </p>
+                <p id="decodedIDToken"><b>Email:</b> </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function main() {
+            await liff.init({ liffId: "2000333920-LO3vkyK8" });
+            liff.ready.then(() => {
+                if (liff.isLoggedIn()) {
+                    getUserProfile();
+                } else {
+                    liff.login();
+                }
+            });
+        }
+
+        async function getUserProfile() {
+            const profile = await liff.getProfile();
+            document.getElementById("pictureUrl").src = profile.pictureUrl;
+            document.getElementById("userId").textContent += profile.userId;
+            document.getElementById("statusMessage").textContent += profile.statusMessage;
+            document.getElementById("displayName").textContent += profile.displayName;
+            document.getElementById("decodedIDToken").textContent += liff.getDecodedIDToken().email;
+        }
+
+        function clearInput(elementId) {
+            document.getElementById(elementId).value = '';
+        }
+
+        async function shareMsg() {
+            try {
+                const messageContent = document.getElementById("message").value;
+                const contents = JSON.parse(messageContent); // Ensure this is a valid JSON array
+                const res = await liff.shareTargetPicker(contents);
+                if (res) {
+                    console.log(`[${res.status}] Message sent!`);
+                } else {
+                    console.log("TargetPicker was closed!");
+                }
+            } catch (error) {
+                console.log("Error: ", error);
+            }
+        }
+
+        function logOut() {
+            liff.logout();
+            window.location.reload();
+        }
+
+        main();
+    </script>
+</body>
+</html>
